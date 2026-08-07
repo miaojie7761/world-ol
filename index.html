@@ -81,6 +81,7 @@
         </div>
         <nav class="main-nav">
           <button class="nav-btn" data-tab="dungeon">副本</button>
+          <button class="nav-btn" data-tab="shop">商店</button>
           <button class="nav-btn" data-tab="bag">背包</button>
           <button class="nav-btn" data-tab="skills">技能</button>
           <button class="nav-btn" data-tab="profile">角色</button>
@@ -93,6 +94,22 @@
           <h3 class="panel-title">副本选择</h3>
           <p class="panel-desc">选择关卡挑战敌人，通关可获得经验、金币与装备。</p>
           <div id="dungeon-list" class="dungeon-list"></div>
+        </section>
+
+        <!-- 商店面板 -->
+        <section id="panel-shop" class="panel hidden">
+          <h3 class="panel-title">商店</h3>
+          <p class="panel-desc">用打怪赚到的金币购买补给与装备。装备可刷新，品质随机。</p>
+          <div class="shop-head">
+            <div class="gold-display">金币 <span class="gold-text" id="shop-gold">0</span></div>
+          </div>
+          <h4 class="shop-section-title">补给品</h4>
+          <div id="shop-consumables" class="shop-list"></div>
+          <div class="shop-equip-head">
+            <h4 class="shop-section-title">装备</h4>
+            <button class="btn btn-sm" onclick="App.refreshShop()">🔄 刷新（<span id="shop-refresh-cost">50</span> 金币）</button>
+          </div>
+          <div id="shop-equipment" class="shop-list"></div>
         </section>
 
         <!-- 背包面板 -->

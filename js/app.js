@@ -108,6 +108,7 @@ const App = {
     if (tab === 'skills') this.renderSkills();
     if (tab === 'profile') this.renderProfile();
     if (tab === 'dungeon') this.renderDungeons();
+    if (tab === 'shop') this.renderShop();
   },
 
   renderPlayerBrief() {
@@ -337,6 +338,90 @@ const App = {
       const val = k === 'crit' ? Math.round(v * 100) + '%' : Math.round(v);
       return `<span>+${val} ${label}</span>`;
     }).join(' ');
+  },
+
+  /* ---------- 商店 ---------- */
+  renderShop() {
+    document.getElementById('shop-gold').textContent = State.data.gold;
+    document.getElementById('shop-refresh-cost').textContent = State.shopState.refreshPrice;
+
+    if (!State.shopState.stock.length) {
+      State.refreshShopStock();
+    }
+
+    const consumables = ['small_potion', 'big_potion', 'mana_potion'];
+    const cl = document.getElementById('shop-consumables');
+    cl.innerHTML = consumables.map(id => {
+      const it = Data.ITEMS[id];
+      return `
+        <div class="shop-item shop-consumable">
+          <span class="shop-icon">${it.icon}</span>
+          <div class="shop-info">
+            <div class="shop-name">${it.name}</div>
+            <div class="shop-desc"><span>${it.desc}</span><span class="gold-text">💰 ${it.price} / 个</span></div>
+          </div>
+          <div class="shop-buy">
+            <button class="btn btn-sm" onclick="App.buyItem('${id}', 1)">买 1</button>
+            <button class="btn btn-sm" onclick="App.buyItem('${id}', 5)">买 5</button>
+            <button class="btn btn-sm" onclick="App.buyItem('${id}', 10)">买 10</button>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    const el = document.getElementById('shop-equipment');
+    const stock = State.shopState.stock;
+    if (!stock.length) {
+      el.innerHTML = '<div class="shop-empty">装备区暂未开张，请刷新。</div>';
+      return;
+    }
+    el.innerHTML = stock.map((it, idx) => {
+      if (!it) return '<div class="shop-item sold-out"><span class="shop-icon">⬜</span><div class="shop-info"><div class="shop-name">已售出</div></div></div>';
+      const q = Data.QUALITIES[it.quality];
+      const price = it.sellPrice * 2;
+      return `
+        <div class="shop-item" style="border-color:${q.color}">
+          <span class="shop-icon">${it.icon}</span>
+          <div class="shop-info">
+            <div class="shop-name" style="color:${q.color}">${it.name}（${q.name}）</div>
+            <div class="shop-desc">${this.formatStats(it.stats)}</div>
+          </div>
+          <div class="shop-buy">
+            <button class="btn btn-sm" onclick="App.buyEquipment(${idx})">购买 💰${price}</button>
+          </div>
+        </div>
+      `;
+    }).join('');
+  },
+
+  buyItem(id, qty) {
+    const res = State.buyItem(id, qty);
+    this.toast(res.message);
+    if (res.ok) {
+      State.save();
+      this.renderPlayerBrief();
+      this.renderShop();
+    }
+  },
+
+  buyEquipment(idx) {
+    const res = State.buyEquipment(idx);
+    this.toast(res.message);
+    if (res.ok) {
+      State.save();
+      this.renderPlayerBrief();
+      this.renderShop();
+    }
+  },
+
+  refreshShop() {
+    const res = State.refreshShop();
+    this.toast(res.message);
+    if (res.ok) {
+      State.save();
+      this.renderPlayerBrief();
+      this.renderShop();
+    }
   },
 
   /* ---------- 背包 ---------- */

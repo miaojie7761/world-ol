@@ -223,4 +223,73 @@ const State = {
   unlockDungeon(id) {
     this.data.dungeonProgress = Math.max(this.data.dungeonProgress, id);
   },
+
+  /* ---------- 商店 ---------- */
+  shopState: {
+    stock: [],
+    refreshPrice: 50,
+    refreshCount: 0,
+  },
+
+  refreshShopStock() {
+    const tier = Math.min(5, Math.max(1, Math.ceil(this.data.level / 4)));
+    const pool = Data.EQUIP_POOL[tier] || Data.EQUIP_POOL[5];
+    const stock = [];
+    const used = new Set();
+    while (stock.length < 3 && used.size < pool.length) {
+      const tplId = pool[Math.floor(Math.random() * pool.length)];
+      if (used.has(tplId)) continue;
+      used.add(tplId);
+      stock.push(Data.makeItem(tplId));
+    }
+    this.shopState.stock = stock;
+  },
+
+  refreshShop() {
+    if (this.shopState.refreshCount > 0 && this.data.gold < this.shopState.refreshPrice) {
+      return { ok: false, message: '金币不足，无法刷新' };
+    }
+    if (this.shopState.refreshCount > 0) {
+      this.data.gold -= this.shopState.refreshPrice;
+    }
+    this.shopState.refreshCount += 1;
+    this.refreshShopStock();
+    return { ok: true, message: this.shopState.refreshCount === 1 ? '免费刷新了一批新装备' : `已刷新，花费 ${this.shopState.refreshPrice} 金币` };
+  },
+
+  canAfford(price) {
+    return this.data.gold >= price;
+  },
+
+  buyItem(itemId, quantity) {
+    const tpl = Data.ITEMS[itemId];
+    if (!tpl) return { ok: false, message: '商品不存在' };
+    const price = tpl.price;
+    let qty = quantity || 1;
+    if (price * qty > this.data.gold) {
+      qty = Math.floor(this.data.gold / price);
+    }
+    if (qty <= 0) return { ok: false, message: '金币不足' };
+    const free = 40 - this.data.bag.length;
+    if (qty > free) qty = free;
+    if (qty <= 0) return { ok: false, message: '背包空间不足' };
+    this.data.gold -= price * qty;
+    for (let i = 0; i < qty; i++) {
+      this.data.bag.push({ ...tpl, uid: 'buy-' + Math.random().toString(36).slice(2, 10) });
+    }
+    return { ok: true, message: `购买成功 ${tpl.name} x${qty}`, goldSpent: price * qty };
+  },
+
+  buyEquipment(idx) {
+    const item = this.shopState.stock[idx];
+    if (!item) return { ok: false, message: '该商品已售出' };
+    const price = item.sellPrice * 2;
+    if (!this.canAfford(price)) return { ok: false, message: '金币不足' };
+    if (this.data.bag.length >= 40) return { ok: false, message: '背包空间不足' };
+    this.data.gold -= price;
+    item.sellPrice = price;
+    this.data.bag.push(item);
+    this.shopState.stock[idx] = null;
+    return { ok: true, message: `已购买 ${item.icon} ${item.name}` };
+  },
 };

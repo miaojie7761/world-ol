@@ -482,6 +482,59 @@ body {
 
 .bag-sort { display: flex; gap: 8px; justify-content: flex-end; }
 
+/* ---------- 商店 ---------- */
+.shop-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+.shop-section-title {
+  font-size: 14px;
+  color: var(--text-dim);
+  margin: 4px 0 10px;
+  letter-spacing: 2px;
+}
+.shop-equip-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 18px;
+}
+.shop-list { display: flex; flex-direction: column; gap: 10px; }
+.shop-empty { text-align: center; color: var(--text-dim); font-size: 13px; padding: 20px 0; }
+
+.shop-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border: 1px solid;
+  border-radius: 10px;
+  padding: 10px 14px;
+  background: rgba(255,255,255,0.03);
+}
+.shop-item.sold-out { opacity: 0.45; }
+.shop-consumable { border-color: var(--panel-border); }
+.shop-icon { font-size: 26px; }
+.shop-info { flex: 1; min-width: 0; }
+.shop-name { font-size: 14px; font-weight: 700; }
+.shop-desc { font-size: 12px; color: var(--text-dim); display: flex; gap: 8px; flex-wrap: wrap; }
+.shop-buy { display: flex; gap: 6px; align-items: center; }
+
+.qty-btn {
+  font-family: inherit;
+  font-size: 12px;
+  color: var(--text);
+  background: rgba(255,255,255,0.06);
+  border: 1px solid var(--panel-border);
+  border-radius: 6px;
+  padding: 5px 10px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.qty-btn:hover:not(:disabled) { border-color: var(--gold); color: var(--gold); }
+.qty-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
 /* ---------- 技能 ---------- */
 .skill-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
 
