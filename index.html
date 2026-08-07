@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>世界OL - 回合制冒险</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div id="app">
+    <div id="bg-overlay"></div>
+
+    <!-- 开始界面 -->
+    <div id="screen-title" class="screen">
+      <div class="title-logo">
+        <h1 class="game-title">世 界 OL</h1>
+        <p class="game-subtitle">THE WORLD ONLINE</p>
+        <p class="game-tagline">回合制 · 冒险 · 角色扮演</p>
+      </div>
+      <div class="title-menu">
+        <button class="btn btn-primary btn-lg" onclick="App.newGame()">新游戏</button>
+        <button class="btn btn-secondary btn-lg" onclick="App.continueGame()">继续游戏</button>
+      </div>
+      <p class="title-hint">进度会自动保存在浏览器中</p>
+    </div>
+
+    <!-- 角色创建界面 -->
+    <div id="screen-create" class="screen hidden">
+      <h2 class="screen-title">创建角色</h2>
+      <div class="create-box">
+        <div class="form-row">
+          <label>角色名称</label>
+          <input type="text" id="input-name" maxlength="10" placeholder="输入冒险者名字" autocomplete="off">
+        </div>
+        <div class="form-row">
+          <label>选择职业</label>
+          <div id="class-picker" class="class-picker"></div>
+        </div>
+        <div id="class-detail" class="class-detail"></div>
+        <div class="form-actions">
+          <button class="btn btn-primary" onclick="App.createCharacter()">踏上征途</button>
+          <button class="btn btn-ghost" onclick="App.showTitle()">返回</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 主界面 -->
+    <div id="screen-main" class="screen hidden">
+      <header class="main-header">
+        <div class="player-brief">
+          <div class="player-avatar" id="player-avatar"></div>
+          <div class="player-info">
+            <div class="player-name-row">
+              <span class="player-name" id="player-name"></span>
+              <span class="player-class" id="player-class"></span>
+              <span class="player-level">Lv.<span id="player-level">1</span></span>
+            </div>
+            <div class="bar-row">
+              <span class="bar-label">HP</span>
+              <div class="bar"><div class="bar-fill bar-hp" id="bar-hp"></div></div>
+              <span class="bar-text" id="text-hp"></span>
+            </div>
+            <div class="bar-row">
+              <span class="bar-label">MP</span>
+              <div class="bar"><div class="bar-fill bar-mp" id="bar-mp"></div></div>
+              <span class="bar-text" id="text-mp"></span>
+            </div>
+            <div class="bar-row">
+              <span class="bar-label">XP</span>
+              <div class="bar"><div class="bar-fill bar-xp" id="bar-xp"></div></div>
+              <span class="bar-text" id="text-xp"></span>
+            </div>
+          </div>
+          <div class="player-stats">
+            <div class="stat-chip">攻击 <b id="stat-atk">0</b></div>
+            <div class="stat-chip">防御 <b id="stat-def">0</b></div>
+            <div class="stat-chip">速度 <b id="stat-spd">0</b></div>
+            <div class="stat-chip">暴击 <b id="stat-crit">0%</b></div>
+            <div class="stat-chip">金币 <b class="gold-text" id="stat-gold">0</b></div>
+          </div>
+        </div>
+        <nav class="main-nav">
+          <button class="nav-btn" data-tab="dungeon">副本</button>
+          <button class="nav-btn" data-tab="bag">背包</button>
+          <button class="nav-btn" data-tab="skills">技能</button>
+          <button class="nav-btn" data-tab="profile">角色</button>
+        </nav>
+      </header>
+
+      <main class="main-body">
+        <!-- 副本面板 -->
+        <section id="panel-dungeon" class="panel">
+          <h3 class="panel-title">副本选择</h3>
+          <p class="panel-desc">选择关卡挑战敌人，通关可获得经验、金币与装备。</p>
+          <div id="dungeon-list" class="dungeon-list"></div>
+        </section>
+
+        <!-- 背包面板 -->
+        <section id="panel-bag" class="panel hidden">
+          <h3 class="panel-title">背包</h3>
+          <div class="bag-head">
+            <div class="gold-display">金币 <span class="gold-text" id="bag-gold">0</span></div>
+            <button class="btn btn-sm btn-ghost" onclick="App.useAllPotions()">使用全部血瓶</button>
+          </div>
+          <div id="bag-list" class="bag-list"></div>
+          <div class="bag-sort">
+            <button class="btn btn-sm" onclick="App.sortBag('type')">按类型</button>
+            <button class="btn btn-sm" onclick="App.sortBag('value')">按价值</button>
+            <button class="btn btn-sm" onclick="App.sellJunk()">出售垃圾装备</button>
+          </div>
+        </section>
+
+        <!-- 技能面板 -->
+        <section id="panel-skills" class="panel hidden">
+          <h3 class="panel-title">技能</h3>
+          <p class="panel-desc">技能随等级提升自动解锁。战斗中使用技能会消耗法力值。</p>
+          <div id="skill-list" class="skill-list"></div>
+        </section>
+
+        <!-- 角色面板 -->
+        <section id="panel-profile" class="panel hidden">
+          <h3 class="panel-title">角色信息</h3>
+          <div class="profile-grid" id="profile-detail"></div>
+          <div class="equip-section">
+            <h4>装备栏</h4>
+            <div id="equip-list" class="equip-list"></div>
+          </div>
+          <div class="profile-actions">
+            <button class="btn btn-danger" onclick="App.resetGame()">重置游戏</button>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <!-- 战斗界面 -->
+    <div id="screen-battle" class="screen hidden">
+      <div class="battle-stage">
+        <div class="battle-field">
+          <div class="enemy-side" id="enemy-side"></div>
+          <div class="vs-banner">VS</div>
+          <div class="player-side" id="player-side"></div>
+        </div>
+        <div class="battle-log" id="battle-log"></div>
+        <div class="battle-actions" id="battle-actions">
+          <button class="btn btn-primary" onclick="Battle.doAction('attack')">攻击</button>
+          <button class="btn btn-secondary" onclick="App.toggleSkillMenu()">技能</button>
+          <button class="btn btn-secondary" onclick="Battle.doAction('defend')">防御</button>
+          <button class="btn btn-secondary" onclick="App.toggleItemMenu()">道具</button>
+          <button class="btn btn-danger" onclick="Battle.doAction('flee')">逃跑</button>
+        </div>
+        <div class="skill-menu hidden" id="skill-menu"></div>
+        <div class="item-menu hidden" id="item-menu"></div>
+      </div>
+    </div>
+
+    <!-- 战斗结算界面 -->
+    <div id="screen-result" class="screen hidden">
+      <div class="result-box" id="result-box"></div>
+    </div>
+
+    <!-- 提示 Toast -->
+    <div id="toast" class="toast hidden"></div>
+  </div>
+
+  <script src="js/data.js"></script>
+  <script src="js/state.js"></script>
+  <script src="js/battle.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
